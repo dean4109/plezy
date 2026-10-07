@@ -1,0 +1,60 @@
+name: Build hCloud Plezy (Play bundle)
+
+# Run from the Actions tab: "Build hCloud Plezy (Play bundle)" -> Run workflow.
+# Produces a signed .aab ready to upload to the Play Console internal-testing track.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   ANDROID_KEYSTORE_BASE64  - your upload keystore (.jks), base64-encoded
+#   ANDROID_STORE_PASSWORD   - keystore password
+#   ANDROID_KEY_PASSWORD     - key password
+#   ANDROID_KEY_ALIAS        - key alias
+
+on:
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: "3.47.1"
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get --enforce-lockfile --no-example
+
+      - name: Configure signing
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      # Build number = workflow run number, so every upload has a higher versionCode
+      # than the last (Play rejects repeats).
+      - name: Build app bundle
+        run: flutter build appbundle --release --build-number=$((1000 + ${{ github.run_number }})) --dart-define=GIT_COMMIT=${{ github.sha }}
+
+      - name: Remove signing material
+        if: always()
+        run: rm -f android/app/upload-keystore.jks android/key.properties
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hcloud-plezy-aab
+          path: build/app/outputs/bundle/release/app-release.aab
