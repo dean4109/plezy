@@ -245,7 +245,7 @@ android {
   }
 
   defaultConfig {
-    applicationId = "hcloud.plezy"
+    applicationId = "plezy.aaos"
     minSdk = 25 // Fire OS 6.x (API 25); :libmpv shares the same floor
     targetSdk = flutter.targetSdkVersion
     versionCode = flutter.versionCode

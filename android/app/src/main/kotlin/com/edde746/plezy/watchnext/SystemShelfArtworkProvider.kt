@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 
 class SystemShelfArtworkProvider : ContentProvider() {
   companion object {
-    const val AUTHORITY = "hcloud.plezy.systemshelf.artwork"
+    const val AUTHORITY = "plezy.aaos.systemshelf.artwork"
   }
 
   override fun onCreate(): Boolean = context != null

@@ -1,6 +1,6 @@
-name: Build hCloud Plezy (Play bundle)
+name: Build Plezy (Play bundle)
 
-# Run from the Actions tab: "Build hCloud Plezy (Play bundle)" -> Run workflow.
+# Run from the Actions tab: "Build Plezy (Play bundle)" -> Run workflow.
 # Produces a signed .aab ready to upload to the Play Console internal-testing track.
 #
 # Required repository secrets (Settings -> Secrets and variables -> Actions):
@@ -56,5 +56,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: hcloud-plezy-aab
+          name: plezy-aab
           path: build/app/outputs/bundle/release/app-release.aab
